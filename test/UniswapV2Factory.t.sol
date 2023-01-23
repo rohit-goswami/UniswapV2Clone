@@ -24,10 +24,6 @@ contract UniswapV2FactoryTest is Test {
 
     }
 
-    function encodeError(string memory error) internal pure returns (bytes memory encoded) {
-        encoded = abi.encodeWithSignature(error);
-    }
-
     function testCreatePair() public {
         address pairAddress = factory.createPair(
             address(token1),
@@ -41,26 +37,24 @@ contract UniswapV2FactoryTest is Test {
 
 
     function testCreatePairZeroAddress() public {
-        vm.expectRevert(encodeError("ZeroAddress()"));
-        factory.createPair(address(0), address(token0));
-       
-        vm.expectRevert(encodeError("ZeroAddress()"));
-        factory.createPair(address(token1), address(0));
+        vm.expectRevert("zero_address");
+        factory.createPair(address(0), address(token1));
         
         
     }
 
-//     function testCreatePairPairExists() public {
-//         factory.createPair(address(token1), address(token0));
+    function testCreatePairPairExists() public {
+       factory.createPair(address(token1), address(token0));
 
-     
-//         factory.createPair(address(token1), address(token0));
-//            vm.expectRevert(encodeError("PairExists()"));
-//     }
+        vm.expectRevert("pair already exists");
+        factory.createPair(address(token1), address(token0));
+          
+    }
 
-//     function testCreatePairIdenticalTokens() public {
+    function testCreatePairIdenticalTokens() public {
         
-//         factory.createPair(address(token0), address(token0));
-//         vm.expectRevert(encodeError("IdenticalAddresses()"));
-//     }
+        vm.expectRevert("Identical Addresses");
+        factory.createPair(address(token0), address(token0));
+       
+   }
 }
