@@ -84,7 +84,7 @@ contract UniswapV2PairTest is Test {
 
         pair.mint(address(this));
         assertEq(pair.balanceOf(address(this)), 2 ether - 1000);
-        assertReserves(3 ether, 2 ether);
+        assertReserves(2 ether, 3 ether);
     }
 
 

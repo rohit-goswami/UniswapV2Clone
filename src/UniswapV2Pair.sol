@@ -38,7 +38,7 @@ contract UniswapV2Pair is IUniswapV2Pair, ERC20, Math {
 
     constructor() ERC20("UniswapV2 Pair", "UNIV2", 18) {}
 
-    //called once byt the factory at the time of deployment
+    //called once by the factory at the time of deployment
 
     function initialize(address token0_, address token1_) public {
         if(token0 != address(0) || token1 != address(0)) revert AlreadyInitialized();
@@ -74,6 +74,7 @@ contract UniswapV2Pair is IUniswapV2Pair, ERC20, Math {
 
 
     function burn(address to) public returns (uint amount0, uint amount1) {
+        (uint112 reserve0_, uint112 reserve1_, ) = getReserves();
         uint256 balance0 = IERC20(token0).balanceOf(address(this));
         uint256 balance1 = IERC20(token1).balanceOf(address(this));
         uint256 liquidity = balanceOf[address(this)];
@@ -81,7 +82,7 @@ contract UniswapV2Pair is IUniswapV2Pair, ERC20, Math {
         amount0 = (liquidity * balance0 ) / totalSupply;
         amount1 = (liquidity * balance1 ) / totalSupply;
 
-        if(amount0 == 0 || amount1 == 0) revert InsufficientLiquidityBurned();
+        require(amount0 > 0 && amount1 > 0, "Insufficient liquidity Burned" ); 
 
         _burn(address(this), liquidity);
 
@@ -91,7 +92,6 @@ contract UniswapV2Pair is IUniswapV2Pair, ERC20, Math {
         balance0 = IERC20(token0).balanceOf(address(this));
         balance1 = IERC20(token1).balanceOf(address(this));
 
-        (uint112 reserve0_, uint112 reserve1_, ) = getReserves();
 
         _update(balance0, balance1, reserve0_, reserve1_);
         emit Burn(msg.sender, amount0, amount1, to);
