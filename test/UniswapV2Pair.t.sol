@@ -11,7 +11,7 @@ import "./mocks/ERC20Mintable.sol";
 contract UniswapV2PairTest is Test {
     ERC20Mintable token0;
     ERC20Mintable token1;
-
+    uint256 public constant  MINIMUM_LIQUIDITY = 1000;
     UniswapV2Pair pair;
    // TestUser testUser;
 
@@ -98,8 +98,10 @@ function testBurn() public {
     token1.transfer(address(pair), 1 ether);
 
     pair.mint(address(this));
-
+    
     uint256 liquidity = pair.balanceOf(address(this));
+    console.log(liquidity);
+    
     pair.transfer(address(this), liquidity);
 
     pair.burn(address(this));

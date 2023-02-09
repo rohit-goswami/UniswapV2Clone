@@ -2,6 +2,7 @@ pragma solidity 0.8.17;
 
 import "solmate/tokens/ERC20.sol";
 import "./libraries/Math.sol";
+import "lib/forge-std/src/console.sol";
 import "./libraries/UQ112x112.sol";
 import "src/Interfaces/IUniswapV2Pair.sol";
 
@@ -78,11 +79,15 @@ contract UniswapV2Pair is IUniswapV2Pair, ERC20, Math {
         uint256 balance0 = IERC20(token0).balanceOf(address(this));
         uint256 balance1 = IERC20(token1).balanceOf(address(this));
         uint256 liquidity = balanceOf[address(this)];
+        console.log("Liquidity", liquidity);
+       
 
-        amount0 = (liquidity * balance0 ) / totalSupply;
-        amount1 = (liquidity * balance1 ) / totalSupply;
+        uint _totalSupply = totalSupply;
 
-        require(amount0 > 0 && amount1 > 0, "Insufficient liquidity Burned" ); 
+        amount0 = liquidity.mul(balance0) / _totalSupply;
+        amount1 = (liquidity * balance1 ) / _totalSupply;
+
+        require(amount0 > 0 &&  amount1 > 0, "Insufficient liquidity Burned" ); 
 
         _burn(address(this), liquidity);
 
