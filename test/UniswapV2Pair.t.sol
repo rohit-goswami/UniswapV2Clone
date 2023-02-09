@@ -100,9 +100,9 @@ function testBurn() public {
     pair.mint(address(this));
     
     uint256 liquidity = pair.balanceOf(address(this));
-    console.log(liquidity);
     
-    pair.transfer(address(this), liquidity);
+    pair.transfer(address(pair), liquidity);
+    // console.log("contract balance: ", pair.balanceOf(address(this)));
 
     pair.burn(address(this));
 

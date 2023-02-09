@@ -5,6 +5,7 @@ import "./libraries/Math.sol";
 import "lib/forge-std/src/console.sol";
 import "./libraries/UQ112x112.sol";
 import "src/Interfaces/IUniswapV2Pair.sol";
+import "lib/openzeppelin-contracts/contracts/utils/math/SafeMath.sol";
 
 
 interface IERC20 {
@@ -25,6 +26,10 @@ contract UniswapV2Pair is IUniswapV2Pair, ERC20, Math {
 
     address public token0;
     address public token1;
+
+    using SafeMath for uint;
+    bytes4 private constant SELECTOR = bytes4(keccak256(bytes('transfer(address,uint256)')));
+
 
     // variables to track reserves in pools
     uint112 private reserve0;
@@ -79,18 +84,15 @@ contract UniswapV2Pair is IUniswapV2Pair, ERC20, Math {
         uint256 balance0 = IERC20(token0).balanceOf(address(this));
         uint256 balance1 = IERC20(token1).balanceOf(address(this));
         uint256 liquidity = balanceOf[address(this)];
-        console.log("Liquidity", liquidity);
-       
 
-        uint _totalSupply = totalSupply;
-
-        amount0 = liquidity.mul(balance0) / _totalSupply;
-        amount1 = (liquidity * balance1 ) / _totalSupply;
+        amount0 = liquidity.mul(balance0) / totalSupply;
+        
+        amount1 = liquidity.mul(balance1) / totalSupply;
 
         require(amount0 > 0 &&  amount1 > 0, "Insufficient liquidity Burned" ); 
 
         _burn(address(this), liquidity);
-
+       
         _safeTransfer(token0, to, amount0);
         _safeTransfer(token1, to, amount1);
 
@@ -113,7 +115,7 @@ contract UniswapV2Pair is IUniswapV2Pair, ERC20, Math {
             uint32 timeElapsed = uint32(block.timestamp) - blockTimestampLast; 
 
             if(timeElapsed > 0 && reserve0_ > 0 && reserve1_ > 0) {
-                price0CumulativeLast += uint(UQ112x112.encode(reserve1_).uqdiv(reserve0_)) *timeElapsed;
+                price0CumulativeLast += uint(UQ112x112.encode(reserve1_).uqdiv(reserve0_)) * timeElapsed;
                 price1CumulativeLast += uint(UQ112x112.encode(reserve0_).uqdiv(reserve1_)) * timeElapsed;
             }
 
@@ -125,11 +127,15 @@ contract UniswapV2Pair is IUniswapV2Pair, ERC20, Math {
         emit Sync(reserve0, reserve1);
     }
     
-    function _safeTransfer(address token, address to, uint256 value) private {
+    function _safeTransfer(
+        address token, 
+        address to, 
+        uint256 value) private {
        (bool success, bytes memory data ) =  token.call(
-            abi.encodeWithSignature("transfer(address, uint256)", to, value)
+            abi.encodeWithSelector(SELECTOR, to, value)
         );
+        
 
-        if(!success || (data.length !=0 && !abi.decode(data, (bool)))) revert TransferFailed();
+        if(!success || (data.length != 0 && !abi.decode(data, (bool)))) revert TransferFailed();
     }
 }
