@@ -100,9 +100,9 @@ function testBurn() public {
     pair.mint(address(this));
     
     uint256 liquidity = pair.balanceOf(address(this));
-    
+
     pair.transfer(address(pair), liquidity);
-    // console.log("contract balance: ", pair.balanceOf(address(this)));
+  
 
     pair.burn(address(this));
 
@@ -111,6 +111,32 @@ function testBurn() public {
     assertEq(pair.totalSupply(), 1000);
     assertEq(token0.balanceOf(address(this)), 10 ether - 1000);
     assertEq(token1.balanceOf(address(this)), 10 ether - 1000); 
+
+}
+
+function testBurnUnbalanced() public {
+    token0.transfer(address(pair), 1 ether);
+    token1.transfer(address(pair), 1 ether);
+
+    pair.mint(address(this));
+
+    token0.transfer(address(pair), 2 ether);
+    token1.transfer(address(pair), 1 ether);
+
+    pair.mint(address(this));
+   
+    uint256 liquidity = pair.balanceOf(address(this));
+  
+    pair.transfer(address(pair), liquidity);
+
+    pair.burn(address(this));
+
+    assertEq(pair.balanceOf(address(this)), 0);
+    assertReserves(1000, 1500);
+    assertEq(pair.totalSupply(), 1000);
+    assertEq(token0.balanceOf(address(this)), 10 ether - 1500);
+    assertEq(token1.balanceOf(address(this)), 10 ether - 1000);
+
 
 }
 
