@@ -140,8 +140,8 @@ function testBurnUnbalanced() public {
 
 }
 
-// will continue in next session !! 
-/*
+}
+
 contract TestUser {
     function provideLiquidity(
         address pairAddress_,
@@ -153,12 +153,10 @@ contract TestUser {
         ERC20(token0Address_).transfer(pairAddress_, amount0_);
         ERC20(token1Address_).transfer(pairAddress_, amount1_);
 
-        UniswapV2Pair(pairAddress_).mint();
+        UniswapV2Pair(pairAddress_).mint(address(this));
     }
 
     function withdrawLiquidity(address pairAddress_) public {
        // UniswapV2Pair(pairAddress_).burn();
     }
-} */
-
-}
+} 
